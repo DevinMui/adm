@@ -1,6 +1,10 @@
 var twilio = require('twilio')
+var tokens = require('./tokens')
 var express = require('express')
 var app = express()
+
+var accountSid = tokens.accountSid
+var authToken = tokens.authToken
 
 var client = new twilio.RestClient(accountSid, authToken)
 
