@@ -1,3 +1,5 @@
 .DS_Store
 *.jpg
 *.png
+tokens.js
+node_modules/
