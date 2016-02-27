@@ -8,29 +8,39 @@ var authToken = tokens.authToken
 
 var client = new twilio.RestClient(accountSid, authToken)
 
-app.get('/red', function(){
+var twilioNumber = "+15005550006"
+
+var number = "+16512223344"
+
+app.get('/red', function(req, res){
 	// twilio send
 	client.messages.create({
-    to:'+16512223344', // number of sim
-    from:'TWILIO_NUMBER',
-    body:'red'
+    to: number, // number of sim
+    from: twilioNumber,
+    body: 'red'
 	}, function(error, message) {
-	    if (error) {
-	        console.log(error.message);
-	    }
+    if (error) {
+      console.log(error.message);
+      res.send("ERROR SENDING SMS")
+    } else {
+    	res.send("RED LIGHT")
+    }
 	});
 })
 
-app.get('/green', function(){
+app.get('/green', function(req, res){
 	// twilio send
 	client.messages.create({
-    to:'+16512223344', // number of sim
-    from:'TWILIO_NUMBER',
-    body:'green'
+    to: number, // number of sim
+    from: twilioNumber,
+    body: 'green'
 	}, function(error, message) {
-	    if (error) {
-	        console.log(error.message);
-	    }
+    if (error) {
+    	console.log(error.message);
+    	res.send("ERROR SENDING SMS")
+    } else {
+    	res.send("GREEN LIGHT")
+    }
 	});
 })
 
