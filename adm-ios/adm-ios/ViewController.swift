@@ -1,9 +1,6 @@
 //
 //  ViewController.swift
-//  AVCamSwift
-//
-//  Created by sunset on 14-11-9.
-//  Copyright (c) 2014年 sunset. All rights reserved.
+//  adm-ios
 //
 
 import UIKit
@@ -12,14 +9,13 @@ import AssetsLibrary
 import SwiftyJSON
 import MobileCoreServices
 
-
-
 var SessionRunningAndDeviceAuthorizedContext = "SessionRunningAndDeviceAuthorizedContext"
 var CapturingStillImageContext = "CapturingStillImageContext"
 var RecordingContext = "RecordingContext"
 
 class ViewController: UIViewController, AVCaptureFileOutputRecordingDelegate {
     
+
     @IBOutlet weak var previewView: AVCamPreviewView!
     // MARK: property
     
@@ -50,6 +46,8 @@ class ViewController: UIViewController, AVCaptureFileOutputRecordingDelegate {
         
         
     }
+    
+
     
     // MARK: Override methods
     
@@ -110,48 +108,6 @@ class ViewController: UIViewController, AVCaptureFileOutputRecordingDelegate {
                     (self.previewView.layer as! AVCaptureVideoPreviewLayer).connection.videoOrientation = orientation
                     
                 })
-                
-            }
-            
-            
-            let audioDevice: AVCaptureDevice = AVCaptureDevice.devicesWithMediaType(AVMediaTypeAudio).first as! AVCaptureDevice
-            
-            var audioDeviceInput: AVCaptureDeviceInput?
-            
-            do {
-                audioDeviceInput = try AVCaptureDeviceInput(device: audioDevice)
-            } catch let error2 as NSError {
-                error = error2
-                audioDeviceInput = nil
-            } catch {
-                fatalError()
-            }
-            
-            if error != nil{
-                print(error)
-                let alert = UIAlertController(title: "Error", message: error!.localizedDescription
-                    , preferredStyle: .Alert)
-                alert.addAction(UIAlertAction(title: "OK", style: .Default, handler: nil))
-                self.presentViewController(alert, animated: true, completion: nil)
-            }
-            if session.canAddInput(audioDeviceInput){
-                session.addInput(audioDeviceInput)
-            }
-            
-            
-            
-            let movieFileOutput: AVCaptureMovieFileOutput = AVCaptureMovieFileOutput()
-            if session.canAddOutput(movieFileOutput){
-                session.addOutput(movieFileOutput)
-                
-                
-                let connection: AVCaptureConnection? = movieFileOutput.connectionWithMediaType(AVMediaTypeVideo)
-                let stab = connection?.supportsVideoStabilization
-                if (stab != nil) {
-                    connection!.enablesVideoStabilizationWhenAvailable = true
-                }
-                
-                self.movieFileOutput = movieFileOutput
                 
             }
             
@@ -455,13 +411,10 @@ class ViewController: UIViewController, AVCaptureFileOutputRecordingDelegate {
                     let data:NSData = AVCaptureStillImageOutput.jpegStillImageNSDataRepresentation(imageDataSampleBuffer)
                     let image:UIImage = UIImage( data: data)!
                     
-                    let libaray:ALAssetsLibrary = ALAssetsLibrary()
-                    let orientation: ALAssetOrientation = ALAssetOrientation(rawValue: image.imageOrientation.rawValue)!
-                    libaray.writeImageToSavedPhotosAlbum(image.CGImage, orientation: orientation, completionBlock: nil)
+                    let binaryImageData = self.base64EncodeImage(image)
+                    self.createRequest(binaryImageData)
                     
-                    
-                    
-                    
+                    print(binaryImageData)
                 }else{
                     //                    print("Did not capture still image")
                     print(error)
@@ -554,7 +507,7 @@ class ViewController: UIViewController, AVCaptureFileOutputRecordingDelegate {
             
             // Check for errors
             if (errorObj.dictionaryValue != [:]) {
-                print("Error code \(errorObj["code"]): \(errorObj["message"])")
+                print("error")
             } else {
                 // Parse the response
                 print(json)
@@ -586,6 +539,7 @@ class ViewController: UIViewController, AVCaptureFileOutputRecordingDelegate {
         })
         
     }
+
 
 }
 
