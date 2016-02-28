@@ -6,7 +6,8 @@ var app = express()
 
 var accountSid = tokens.accountSid
 var authToken = tokens.authToken
-var arcToken = tokens.arcToken
+var arcClient = tokens.arcClient
+var arcSecret = tokens.arcSecret
 
 var client = new twilio.RestClient(accountSid, authToken)
 
@@ -14,7 +15,7 @@ var twilioNumber = "+15005550006"
 
 var number = "+16512223344"
 
-var location = ""
+var location = "160 university street, sf"
 
 app.get('/red', function(req, res){
 	// twilio send
@@ -48,65 +49,175 @@ app.get('/green', function(req, res){
 	});
 })
 
-var directionsOptions = {
-	url: 'http://route.arcgis.com/arcgis/rest/services/World/Route/NAServer/Route_World/solve/',
-	json: true,
-	form: directionsParams
-}
+app.get('/location', function(req, res){
+	//location = req.body.location
 
-app.post('/location', function(req, res){
-	location = req.body.location
+	var initX, initY, destinationX, destinationY = ""
+	var direction = "sadf"
 
-	var initX, initY, destinationX, destinationY = 0
-
-	// find place's x and y
-	var findInitParams = {
+	var params = {
 		f: 'json',
-		token: arcToken,
-		text: location
+		client_id: arcClient,
+		client_secret: arcSecret,
+		grant_type: 'client_credentials',
+		expiration: '1440'
 	}
-
-	var findInitOptions = {
-		url: 'http://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/find/',
+	var arcTokenOptions = {
+		url: 'https://www.arcgis.com/sharing/rest/oauth2/token/',
 		json: true,
-		form: findInitParams
+		form: params
 	}
 
-	request.post(findInitOptions, function (error, response, body) {
-  	if (!error && response.statusCode == 200) {
-    	console.log(body)
-    	initX = body.x
-    	initY = body.y
-  	}
+	request.post(arcTokenOptions, function (error, response, body) {
+		if (!error && response.statusCode == 200) {
+	  	var arcToken = body.access_token
+
+	  	// find place's x and y
+			var findInitParams = {
+				f: 'json',
+				token: arcToken,
+				text: location
+			}
+
+			var findInitOptions = {
+				url: 'http://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/find/',
+				json: true,
+				form: findInitParams
+			}
+
+			request.post(findInitOptions, function (error, response, body) {
+		  	if (!error && response.statusCode == 200) {
+		  		console.log("INIT OPTIONS")
+		    	initX = body.locations[0].feature.geometry.x
+		    	initY = body.locations[0].feature.geometry.y
+
+		    	// find place's x and y
+					var findDesitinationParams = {
+						f: 'json',
+						token: arcToken,
+						text: location
+					}
+
+					var findDestinationOptions = {
+						url: 'http://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/find/',
+						json: true,
+						form: findInitParams
+					}
+
+					request.post(findDestinationOptions, function (error, response, body) {
+				  	if (!error && response.statusCode == 200) {
+				    	//console.log(body)
+				    	//console.log(JSON.stringify(body, null, 2));
+				    	console.log("DESTINATION OPTIONS")
+				    	destinationX = body.locations[0].feature.geometry.x
+				    	destinationY = body.locations[0].feature.geometry.y
+
+				    	// directions
+							var directionsParams = {
+								f: 'json',
+								token: arcToken,
+								stops: initX + ',' + initY + ';' + destinationX + ',' + destinationY
+							}
+
+							var uri = 'http://route.arcgis.com/arcgis/rest/services/World/Route/NAServer/Route_World/solve?f=json&' +
+								'token=' + arcToken + '&' +
+								'stops=' + initX + ',' + initY + ';'+ destinationX + ',' + destinationY
+
+							console.log(uri)
+
+							var directionsOptions = {
+								url: uri,
+								// json: true,
+								// form: {
+								// 	f: 'json',
+								// 	token: arcToken,
+								// 	//stops: initX + ',' + initY + ';' + destinationX + ',' + destinationY
+								// }
+							}
+
+							request.post(directionsOptions, function (error, response, body) {
+						  	if (!error && response.statusCode == 200) {
+						    	console.log("DIRECTION OPTIONS")
+						    	console.log(body)
+						    	direction = body
+						  	} else {
+						  		console.log("DIRECTION OPTIONS")
+						  		console.log(error)
+						  		direction = error
+						  	}
+							})
+
+				  	} else {
+				  		console.log(error)
+				  		console.log("DESTINATION OPTIONS")
+				  	}
+					})
+
+		  	} else {
+		  		console.log(error)
+		  		console.log("INIT OPTIONS")
+		  	}
+			})
+
+		}
 	})
 
-	// find place's x and y
-	var findDesitinationParams = {
-		f: 'json',
-		token: arcToken,
-		text: location
-	}
 
-	var findDestinationOptions = {
-		url: 'http://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/find/',
-		json: true,
-		form: findInitParams
-	}
+	// // find place's x and y
+	// var findDesitinationParams = {
+	// 	f: 'json',
+	// 	token: arcToken,
+	// 	text: location
+	// }
 
-	request.post(findDestinationOptions, function (error, response, body) {
-  	if (!error && response.statusCode == 200) {
-    	console.log(body)
-    	destinationX = body.x
-    	destinationY = body.y
-  	}
-	})
+	// var findDestinationOptions = {
+	// 	url: 'http://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/find/',
+	// 	json: true,
+	// 	form: findInitParams
+	// }
 
-	// directions
-	var directionsParams = {
-		f: 'json',
-		token: arcToken,
-		stops: initX + ',' + initY + ';' + destinationX + ',' + destinationY
-	}
+	// request.post(findDestinationOptions, function (error, response, body) {
+ //  	if (!error && response.statusCode == 200) {
+ //    	//console.log(body)
+ //    	//console.log(JSON.stringify(body, null, 2));
+ //    	console.log("DESTINATION OPTIONS")
+ //    	destinationX = body.locations[0].feature.geometry.x
+ //    	destinationY = body.locations[0].feature.geometry.y
+ //  	} else {
+ //  		console.log(error)
+ //  		console.log("DESTINATION OPTIONS")
+ //  	}
+	// })
+
+	// // directions
+	// var directionsParams = {
+	// 	f: 'json',
+	// 	token: arcToken,
+	// 	stops: initX + ',' + initY + ';' + destinationX + ',' + destinationY
+	// }
+
+	// var directionsOptions = {
+	// 	url: 'http://route.arcgis.com/arcgis/rest/services/World/Route/NAServer/Route_World/solve/',
+	// 	json: true,
+	// 	form: directionsParams
+	// }
+
+
+	// var direction = "sadf"
+	// request.post(directionsOptions, function (error, response, body) {
+ //  	if (!error && response.statusCode == 200) {
+ //    	console.log("DIRECTION OPTIONS")
+ //    	console.log(body)
+ //    	direction = body
+ //  	} else {
+ //  		console.log("DIRECTION OPTIONS")
+ //  		console.log(error)
+ //  		direction = error
+ //  	}
+	// })
+
+	console.log(direction)
+	res.send(direction)
 
 })
 
