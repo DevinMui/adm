@@ -66,7 +66,7 @@ class ViewController: UIViewController, AVCaptureFileOutputRecordingDelegate {
             let greensum = greenArray.reduce(0) { $0 + $1 }
             
             print(greensum)
-            if self.labelsDesc.contains("traffic light") {
+            if self.labelsDesc.contains("traffic light") || self.labelsDesc.contains("light") {
                 Alamofire.request(.GET, "http://104.197.105.194/red")
             
                 if self.greensumstatic < greensum {
