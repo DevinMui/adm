@@ -17,11 +17,9 @@ var client = new twilio.RestClient(accountSid, authToken)
 
 var twilioNumber = "+15005550006"
 
-var number = "+16512223344"
+var number = "+14159667621"
 
 var location = "160 university street, sf"
-
-var direction = ""
 
 app.get('/red', function(req, res){
 	// twilio send
@@ -56,8 +54,9 @@ app.get('/green', function(req, res){
 })
 
 app.post('/location', function(req, res){
-	initLocation = req.body.initLocation
-	destinationLocation = req.body.destinationLocation
+	var initLocation = req.body.initLocation
+	var destinationLocation = req.body.destinationLocation
+	var direction = ""
 
 	var initX, initY, destinationX, destinationY = ""
 
