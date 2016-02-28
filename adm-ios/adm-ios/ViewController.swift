@@ -107,7 +107,7 @@ class ViewController: UIViewController, AVCaptureFileOutputRecordingDelegate {
         
         self.checkDeviceAuthorizationStatus()
         
-        _ = NSTimer.scheduledTimerWithTimeInterval(5.0, target: self, selector: Selector("update"), userInfo: nil, repeats: true)
+        _ = NSTimer.scheduledTimerWithTimeInterval(10.0, target: self, selector: Selector("update"), userInfo: nil, repeats: true)
         
         let sessionQueue: dispatch_queue_t = dispatch_queue_create("session queue",DISPATCH_QUEUE_SERIAL)
         
