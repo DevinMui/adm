@@ -2,7 +2,11 @@ var twilio = require('twilio')
 var request = require('request')
 var tokens = require('./tokens')
 var express = require('express')
+var bodyParser = require('body-parser')
+
 var app = express()
+
+app.use(bodyParser.json())
 
 var accountSid = tokens.accountSid
 var authToken = tokens.authToken
@@ -16,6 +20,8 @@ var twilioNumber = "+15005550006"
 var number = "+16512223344"
 
 var location = "160 university street, sf"
+
+var direction = ""
 
 app.get('/red', function(req, res){
 	// twilio send
@@ -49,11 +55,11 @@ app.get('/green', function(req, res){
 	});
 })
 
-app.get('/location', function(req, res){
-	//location = req.body.location
+app.post('/location', function(req, res){
+	initLocation = req.body.initLocation
+	destinationLocation = req.body.destinationLocation
 
 	var initX, initY, destinationX, destinationY = ""
-	var direction = "sadf"
 
 	var params = {
 		f: 'json',
@@ -87,7 +93,6 @@ app.get('/location', function(req, res){
 
 			request.post(findInitOptions, function (error, response, body) {
 		  	if (!error && response.statusCode == 200) {
-		  		console.log("INIT OPTIONS")
 		    	initX = body.locations[0].feature.geometry.x
 		    	initY = body.locations[0].feature.geometry.y
 
@@ -106,9 +111,6 @@ app.get('/location', function(req, res){
 
 					request.post(findDestinationOptions, function (error, response, body) {
 				  	if (!error && response.statusCode == 200) {
-				    	//console.log(body)
-				    	//console.log(JSON.stringify(body, null, 2));
-				    	console.log("DESTINATION OPTIONS")
 				    	destinationX = body.locations[0].feature.geometry.x
 				    	destinationY = body.locations[0].feature.geometry.y
 
@@ -119,27 +121,16 @@ app.get('/location', function(req, res){
 								stops: initX + ',' + initY + ';' + destinationX + ',' + destinationY
 							}
 
-							var uri = 'http://route.arcgis.com/arcgis/rest/services/World/Route/NAServer/Route_World/solve?f=json&' +
-								'token=' + arcToken + '&' +
-								'stops=' + initX + ',' + initY + ';'+ destinationX + ',' + destinationY
-
-							console.log(uri)
-
 							var directionsOptions = {
-								url: uri,
-								// json: true,
-								// form: {
-								// 	f: 'json',
-								// 	token: arcToken,
-								// 	//stops: initX + ',' + initY + ';' + destinationX + ',' + destinationY
-								// }
+								url: 'http://route.arcgis.com/arcgis/rest/services/World/Route/NAServer/Route_World/solve/',
+								json: true,
+								form: directionsParams
 							}
 
 							request.post(directionsOptions, function (error, response, body) {
 						  	if (!error && response.statusCode == 200) {
-						    	console.log("DIRECTION OPTIONS")
-						    	console.log(body)
 						    	direction = body
+						    	res.send(direction)
 						  	} else {
 						  		console.log("DIRECTION OPTIONS")
 						  		console.log(error)
@@ -161,63 +152,6 @@ app.get('/location', function(req, res){
 
 		}
 	})
-
-
-	// // find place's x and y
-	// var findDesitinationParams = {
-	// 	f: 'json',
-	// 	token: arcToken,
-	// 	text: location
-	// }
-
-	// var findDestinationOptions = {
-	// 	url: 'http://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/find/',
-	// 	json: true,
-	// 	form: findInitParams
-	// }
-
-	// request.post(findDestinationOptions, function (error, response, body) {
- //  	if (!error && response.statusCode == 200) {
- //    	//console.log(body)
- //    	//console.log(JSON.stringify(body, null, 2));
- //    	console.log("DESTINATION OPTIONS")
- //    	destinationX = body.locations[0].feature.geometry.x
- //    	destinationY = body.locations[0].feature.geometry.y
- //  	} else {
- //  		console.log(error)
- //  		console.log("DESTINATION OPTIONS")
- //  	}
-	// })
-
-	// // directions
-	// var directionsParams = {
-	// 	f: 'json',
-	// 	token: arcToken,
-	// 	stops: initX + ',' + initY + ';' + destinationX + ',' + destinationY
-	// }
-
-	// var directionsOptions = {
-	// 	url: 'http://route.arcgis.com/arcgis/rest/services/World/Route/NAServer/Route_World/solve/',
-	// 	json: true,
-	// 	form: directionsParams
-	// }
-
-
-	// var direction = "sadf"
-	// request.post(directionsOptions, function (error, response, body) {
- //  	if (!error && response.statusCode == 200) {
- //    	console.log("DIRECTION OPTIONS")
- //    	console.log(body)
- //    	direction = body
- //  	} else {
- //  		console.log("DIRECTION OPTIONS")
- //  		console.log(error)
- //  		direction = error
- //  	}
-	// })
-
-	console.log(direction)
-	res.send(direction)
 
 })
 
