@@ -1,0 +1,77 @@
+while (vehicle is not at destination) {
+	if (vertical distance between destination > horizontal distance between destination) { 
+		go vertical towards destination
+
+		if (obstacle encountered) {
+			move forward to see if they are stairs
+			if (if not stairs) {
+				turn 90 degrees left
+				move left 2 feet
+				turn 90 right
+				if (check for obstacle, if obstacle is still there) {
+					turn 90 degrees left
+					move left 2 feet
+					turn 90 degrees right
+					if (check for obstacle, if obstacle is still there) {
+						turn 90 degrees right
+						move right 6 feet 
+						turn 90 degrees left
+						if (check for obstacle, if obstacle is still there) {
+							turn 90 degrees right
+							move right 2 feet
+							turn 90 degrees left
+							if (check for obstacle, if obstacle is still there) {
+								the obstacle cannot be crossed
+							}
+						}
+					}
+				}
+			}
+		}
+
+		if (near intersection) {
+			take picture of traffic light
+			while (traffic light is red) {
+				take picture of traffic light
+			}
+		}
+	}
+
+	if (horizontal distance between destination > vertical distance between destination) { 
+		go horizontal towards destination
+
+		if (obstacle encountered) {
+			move forward to see if they are stairs
+			if (if not stairs) {
+				turn 90 degrees left
+				move left 2 feet
+				turn 90 right
+				if (check for obstacle, if obstacle is still there) {
+					turn 90 degrees left
+					move left 2 feet
+					turn 90 degrees right
+					if (check for obstacle, if obstacle is still there) {
+						turn 90 degrees right
+						move right 6 feet 
+						turn 90 degrees left
+						if (check for obstacle, if obstacle is still there) {
+							turn 90 degrees right
+							move right 2 feet
+							turn 90 degrees left
+							if (check for obstacle, if obstacle is still there) {
+								the obstacle cannot be crossed
+							}
+						}
+					}
+				}
+			}
+		}
+
+		if (near intersection) {
+			take picture of traffic light
+			while (traffic light is red) {
+				take picture of traffic light
+			}
+		}
+	}
+}
