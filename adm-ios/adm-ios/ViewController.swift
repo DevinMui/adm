@@ -8,6 +8,7 @@ import AVFoundation
 import AssetsLibrary
 import SwiftyJSON
 import MobileCoreServices
+import Alamofire
 
 var SessionRunningAndDeviceAuthorizedContext = "SessionRunningAndDeviceAuthorizedContext"
 var CapturingStillImageContext = "CapturingStillImageContext"
@@ -25,8 +26,15 @@ class ViewController: UIViewController, AVCaptureFileOutputRecordingDelegate {
     var movieFileOutput: AVCaptureMovieFileOutput?
     var stillImageOutput: AVCaptureStillImageOutput?
     
+    var labelsDesc = [String()]
+    var dominantColor = [String()]
     var API_KEY = "AIzaSyAIDv59ydky0TkdKHc1MRCstAXIiMa83v0"
     
+    var reds = [String()]
+    var greens = [String()]
+    
+    var greensumstatic = Double()
+    var redsumstatic = Double()
     
     var deviceAuthorized: Bool  = false
     var backgroundRecordId: UIBackgroundTaskIdentifier = UIBackgroundTaskInvalid
@@ -44,11 +52,48 @@ class ViewController: UIViewController, AVCaptureFileOutputRecordingDelegate {
     override func viewDidAppear(animated: Bool) {
         super.viewDidAppear(true)
         
-        
+        _ = NSTimer.scheduledTimerWithTimeInterval(0.1, target: self, selector: Selector("checker"), userInfo: nil, repeats: true)
     }
-    
 
     
+    func checker() {
+        
+        dispatch_async(dispatch_get_main_queue(), {
+
+            let redArray = self.reds.map{ Double($0) ?? 0}
+            let greenArray = self.greens.map{ Double($0) ?? 0}
+            let redsum = redArray.reduce(0) { $0 + $1 }
+            let greensum = greenArray.reduce(0) { $0 + $1 }
+            
+            print(greensum)
+            if self.labelsDesc.contains("traffic light") {
+                Alamofire.request(.GET, "http://104.197.105.194/red")
+            
+                if self.greensumstatic < greensum {
+                    Alamofire.request(.GET, "http://104.197.105.194/green")
+                }
+            }
+            
+            let seconds = 0.5
+            let delay = seconds * Double(NSEC_PER_SEC)  // nanoseconds per seconds
+            let dispatchTime = dispatch_time(DISPATCH_TIME_NOW, Int64(delay))
+            
+            dispatch_after(dispatchTime, dispatch_get_main_queue(), {
+                self.staticvalues()
+            })
+        })
+    }
+    
+    func staticvalues() {
+        let redArray = self.reds.map{ Double($0) ?? 0}
+        let greenArray = self.greens.map{ Double($0) ?? 0}
+        let redsum = redArray.reduce(0) { $0 + $1 }
+        let greensum = greenArray.reduce(0) { $0 + $1 }
+        
+        greensumstatic = greensum
+        redsumstatic = redsum
+    }
+
     // MARK: Override methods
     
     override func viewDidLoad() {
@@ -514,13 +559,29 @@ class ViewController: UIViewController, AVCaptureFileOutputRecordingDelegate {
                 
                 // Get label annotations
                 let labelAnnotations: JSON = responses["labelAnnotations"]
+                let colorAnnotations: JSON = responses["imagePropertiesAnnotation"]
+                let colors: JSON = colorAnnotations["dominantColors"]
+                let colorscolors: JSON = colors["colors"]
+                let colorcolor: JSON = colorscolors["color"]
+                let red = colorcolor["red"].stringValue
+                let green = colorcolor["green"].stringValue
+                
                 let numLabels: Int = labelAnnotations.count
+                let numColors: Int = colorAnnotations.count
+                
+                for index in 0..<numColors {
+                    self.reds.append(red)
+                    self.greens.append(green)
+                }
+                
                 var labels: Array<String> = []
                 if numLabels > 0 {
                     var labelResultsText:String = "Labels found: "
                     for index in 0..<numLabels {
                         let label = labelAnnotations[index]["description"].stringValue
                         labels.append(label)
+                        
+                        self.labelsDesc = labels
                     }
                     for label in labels {
                         // if it's not the last item add a comma
