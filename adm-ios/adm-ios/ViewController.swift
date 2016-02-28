@@ -66,7 +66,7 @@ class ViewController: UIViewController, AVCaptureFileOutputRecordingDelegate {
             let greensum = greenArray.reduce(0) { $0 + $1 }
             
             print(greensum)
-            if self.labelsDesc.contains("traffic light") {
+            if self.labelsDesc.contains("traffic light") || self.labelsDesc.contains("light") {
                 Alamofire.request(.GET, "http://104.197.105.194/red")
             
                 if self.greensumstatic < greensum {
@@ -107,7 +107,7 @@ class ViewController: UIViewController, AVCaptureFileOutputRecordingDelegate {
         
         self.checkDeviceAuthorizationStatus()
         
-        _ = NSTimer.scheduledTimerWithTimeInterval(5.0, target: self, selector: Selector("update"), userInfo: nil, repeats: true)
+        _ = NSTimer.scheduledTimerWithTimeInterval(10.0, target: self, selector: Selector("update"), userInfo: nil, repeats: true)
         
         let sessionQueue: dispatch_queue_t = dispatch_queue_create("session queue",DISPATCH_QUEUE_SERIAL)
         
