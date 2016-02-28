@@ -1,0 +1,6 @@
+platform :ios, '9.2'
+use_frameworks!
+
+target 'adm-ios' do
+    pod 'SwiftyJSON', :git => 'https://github.com/SwiftyJSON/SwiftyJSON.git'
+end
