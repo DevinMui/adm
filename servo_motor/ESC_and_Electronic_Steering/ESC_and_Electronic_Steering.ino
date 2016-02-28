@@ -11,8 +11,11 @@ void setup()
   
   steering.attach(2);
    ESC.attach(3);
+   ESC.write(40);
+   delay(600);
+   ESC.write(20);
+   delay(600);
    ESC.write(30);
-   delay(1200);
    steering.write(0);
    delay(600);
    steering.write(180);
