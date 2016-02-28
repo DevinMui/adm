@@ -414,7 +414,6 @@ class ViewController: UIViewController, AVCaptureFileOutputRecordingDelegate {
                     let binaryImageData = self.base64EncodeImage(image)
                     self.createRequest(binaryImageData)
                     
-                    print(binaryImageData)
                 }else{
                     //                    print("Did not capture still image")
                     print(error)
