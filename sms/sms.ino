@@ -22,8 +22,11 @@ void loop()
      case 'd': // if the character is 'd'
        DialVoiceCall(); // dial a number
        break;
+     case 'r':
+       ReadMessages();
+       break;
  
-   } 
+   }
  
   if (gprsSerial.available()){ // if the shield has something to say
     Serial.write(gprsSerial.read()); // display the output of the shield
@@ -34,6 +37,12 @@ void loop()
 * Name: SendTextMessage
 * Description: Send a text message to a number
 */
+void ReadMessages()
+{
+  Serial.println("Reading...");
+  gprsSerial.println("AT+CMGL=\"ALL\"");
+}
+
 void SendTextMessage()
 {
   Serial.println("Sending Text...");
