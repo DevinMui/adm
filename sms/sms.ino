@@ -9,27 +9,35 @@ void setup()
   Serial.begin(19200);   
   delay(500);
 }
- 
+uint32_t timer = millis();
 void loop()
 {
- 
-  if (Serial.available()) // if there is incoming serial data
-   switch(Serial.read()) // read the character
-   {
-     case 't': // if the character is 't'
-       SendTextMessage(); // send the text message
-       break;
-     case 'd': // if the character is 'd'
-       DialVoiceCall(); // dial a number
-       break;
-     case 'r':
-       ReadMessages();
-       break;
- 
+  if(millis() - timer > 5000){
+    timer = millis();
+  /*if (Serial.available()) // if there is incoming serial data
+     switch(Serial.read()) // read the character
+     {
+       case 't': // if the character is 't'
+         SendTextMessage("fag"); // send the text message
+         break;
+       case 'r':
+         ReadMessages();
+         break;
+       case 'd':
+         DeleteMessages();
+         break;
+       default:
+         SendTextMessage("fag");
+   
+     }*/
+     SendTextMessage("fag");
    }
+   //SendTextMessage("fag");
  
   if (gprsSerial.available()){ // if the shield has something to say
-    Serial.write(gprsSerial.read()); // display the output of the shield
+
+    Serial.write(gprsSerial.read()); 
+
   }
 }
  
@@ -43,7 +51,13 @@ void ReadMessages()
   gprsSerial.println("AT+CMGL=\"ALL\"");
 }
 
-void SendTextMessage()
+void DeleteMessages()
+{
+  Serial.println("Deleting");
+  gprsSerial.println("AT+CMGD=1,4");
+}
+
+void SendTextMessage(String text)
 {
   Serial.println("Sending Text...");
   gprsSerial.print("AT+CMGF=1\r"); // Set the shield to SMS mode
@@ -52,21 +66,10 @@ void SendTextMessage()
   // +15408985543
   gprsSerial.println("AT+CMGS = \"+14159943383\"");
   delay(100);
-  gprsSerial.println("FUCK YOU JESSE"); //the content of the message
+  gprsSerial.println(text); //the content of the message
   delay(100);
   gprsSerial.print((char)26);//the ASCII code of the ctrl+z is 26 (required according to the datasheet)
   delay(100);
   gprsSerial.println();
   Serial.println("Text Sent.");
-}
- 
-/*
-* Name: DialVoiceCall()
-* Description: Can call/dial a phone number
-*/
-void DialVoiceCall()
-{
-  gprsSerial.println("ATD+14159943383;");//dial the number, must include country code
-  delay(100);
-  gprsSerial.println();
 }
