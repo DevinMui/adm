@@ -43,7 +43,7 @@ app.post('/trigger', twilio.webhook(), function(request, response) {
 	  	} else {
 	  		console.log(error)
 	  	}
-	  }
+	  })
 
 });
 
