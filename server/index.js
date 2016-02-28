@@ -21,6 +21,32 @@ var number = "+14159667621"
 
 var location = "160 university street, sf"
 
+app.post('/trigger', twilio.webhook(), function(request, response) {
+    var twiml = new twilio.TwimlResponse();
+
+    var params = {
+			f: 'json',
+			text: req.body.Body
+		}
+		var findOptions = {
+			url: 'http://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/find/',
+			json: true,
+			form: params
+		}
+
+		request.post(findOptions, function (error, response, body) {
+			if (!error && response.statusCode == 200) {
+				x = body.locations[0].feature.geometry.x
+		    y = body.locations[0].feature.geometry.y
+	  		twiml.message(x + ', ' + y);
+    		response.send(twiml);
+	  	} else {
+	  		console.log(error)
+	  	}
+	  }
+
+});
+
 app.get('/red', function(req, res){
 	// twilio send
 	client.messages.create({
