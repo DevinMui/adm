@@ -11,18 +11,21 @@ boolean shift;
 
 void setup()
 {
+//shows ADM boot status
   lcd.begin(16, 2);
   lcd.setCursor(0, 0);
   lcd.print("ADM Initializing");
   delay(1000);
   
+//reset/init of ESC
   ESC.attach(0);
   delay(200);
   ESC.write(105);
   delay(200);
   ESC.write(90);
   delay(200);
-  
+
+//ready message for ADM
   lcd.setCursor(0, 0);
   lcd.print("   ADM Ready!   ");
   delay(500);
